@@ -74,7 +74,6 @@ def attempt_download(file, backup, repo='ultralytics/yolov5', release='v7.0'):
             file = name.split('?')[0]  # parse authentication https://url.com/file.txt?auth...
             file = f"/root/.cache/torch/hub/checkpoints/{file}"
             os.makedirs(Path(file).parent, exist_ok=True)  # make parent dir
-            print("FILE", file)
             if Path(file).is_file():
                 LOGGER.info(f'Found {url} locally at {file}')  # file already exists
             else:
