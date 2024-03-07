@@ -72,7 +72,7 @@ def attempt_download(file, backup, repo='ultralytics/yolov5', release='v7.0'):
         if str(file).startswith(('http:/', 'https:/')):  # download
             url = str(file).replace(':/', '://')  # Pathlib turns :// -> :/
             file = name.split('?')[0]  # parse authentication https://url.com/file.txt?auth...
-            file = f"{os.path.expanduser('~')}/torch/hub/checkpoints/{file}"
+            file = f"{os.path.expanduser('~')}/.cache/torch/hub/checkpoints/{file}"
             os.makedirs(Path(file).parent, exist_ok=True)  # make parent dir
             if Path(file).is_file():
                 LOGGER.info(f'Found {url} locally at {file}')  # file already exists
