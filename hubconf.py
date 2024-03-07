@@ -20,7 +20,7 @@ dependencies = [
     "torch",
     "torchvision",
     "tqdm",
-    "ultralytics==8.0.136",
+    "ultralytics",
     "-e ."
 ]
 
