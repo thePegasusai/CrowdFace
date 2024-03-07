@@ -26,7 +26,7 @@ def detector(auto_shape=True):
   """
 
   url = "https://ultrabrain.s3.amazonaws.com/best.pt"
-  model = _DetectMultiBackend(url)
+  model = _DetectMultiBackend(weights=url)
   if auto_shape: model = _AutoShape(model)
   return model
 
