@@ -6,20 +6,8 @@ Usage:
     model = torch.hub.load('Ultrabrain/CrowdFace', 'detector', autoshape=True)
 """
 dependencies = [
-    "gitpython",
-    "ipython",
-    "matplotlib",
-    "numpy",
-    "opencv-python",
-    "Pillow",
-    "psutil",
-    "PyYAML",
-    "requests",
-    "scipy",
-    "thop",
     "torch",
     "torchvision",
-    "tqdm",
     "ultralytics"
 ]
 
