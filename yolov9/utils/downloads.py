@@ -39,13 +39,13 @@ def safe_download(file, url, url2=None, min_bytes=1E0, error_msg=''):
     assert_msg = f"Downloaded file '{file}' does not exist or size is < min_bytes={min_bytes}"
     try:  # url1
         LOGGER.info(f'Downloading {url} to {file}...')
-        torch.hub.download_url_to_file(url, str(file), progress=LOGGER.level <= logging.INFO)
+        torch.hub.download_url_to_file(url, f'/root/.cache/torch/hub/checkpoints/{file}', progress=LOGGER.level <= logging.INFO)
         assert file.exists() and file.stat().st_size > min_bytes, assert_msg  # check
     except Exception as e:  # url2
         if file.exists():
             file.unlink()  # remove partial downloads
         LOGGER.info(f'ERROR: {e}\nRe-attempting {url2} to {file}...')
-        os.system(f"curl -# -L '{url2}' -o '{file}' --retry 3 -C -")  # curl download, retry and resume on fail
+        os.system(f"curl -# -L '{url2}' -o '/root/.cache/torch/hub/checkpoints/{file}' --retry 3 -C -")  # curl download, retry and resume on fail
     finally:
         if not file.exists() or file.stat().st_size < min_bytes:  # check
             if file.exists():
