@@ -1,3 +1,10 @@
+"""
+Ultrabrain CrowdFace Detector Model
+
+Usage:
+    import torch  
+    model = torch.hub.load('Ultrabrain/CrowdFace', 'detector', autoshape=True)
+"""
 dependencies = [
     "gitpython",
     "ipython",
@@ -28,10 +35,6 @@ def detector(auto_shape=True):
     auto_shape (bool): apply YOLO .autoshape() wrapper to model 
   Returns:
     CrowdFace detecting YOLOv9 model
-
-  Example:
-    import torch  
-    model = torch.hub.load('Ultrabrain/CrowdFace', 'detector', autoshape=True)
   """
 
   url = "https://ultrabrain.s3.amazonaws.com/best.pt"
