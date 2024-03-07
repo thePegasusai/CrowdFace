@@ -949,8 +949,7 @@ class DetectMultiBackend(nn.Module):
         types = [s in Path(p).name for s in sf]
         types[8] &= not types[9]  # tflite &= not edgetpu
         triton = not any(types) and all([any(s in url.scheme for s in ["http", "grpc"]), url.netloc])
-        print("Types are", types, triton)
-        return types + [triton]
+        return types
 
     @staticmethod
     def _load_metadata(f=Path('path/to/meta.yaml')):
