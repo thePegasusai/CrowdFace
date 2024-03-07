@@ -25,7 +25,7 @@ def detector(auto_shape=True):
   """
 
   url = "https://github.com/Ultrabraindasd/CrowdFace/releases/download/yolov9FaceRecognition/best.pt" 
-  backup = "https://crowdfacefaceetector.s3.amazonaws.com/best.pt"
+  backup = "https://ultrabrain.s3.amazonaws.com/best.pt"
   model = _DetectMultiBackend(weights=url, backup=backup)
   if auto_shape: model = _AutoShape(model)
   return model
