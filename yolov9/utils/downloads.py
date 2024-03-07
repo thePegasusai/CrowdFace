@@ -39,13 +39,13 @@ def safe_download(file, url, url2=None, min_bytes=1E0, error_msg=''):
     assert_msg = f"Downloaded file '{file}' does not exist or size is < min_bytes={min_bytes}"
     try:  # url1
         LOGGER.info(f'Downloading {url} to {file}...')
-        torch.hub.download_url_to_file(url, f'/root/.cache/torch/hub/checkpoints/{file}', progress=LOGGER.level <= logging.INFO)
+        torch.hub.download_url_to_file(url, f'{file}', progress=LOGGER.level <= logging.INFO)
         assert file.exists() and file.stat().st_size > min_bytes, assert_msg  # check
     except Exception as e:  # url2
         if file.exists():
             file.unlink()  # remove partial downloads
         LOGGER.info(f'ERROR: {e}\nRe-attempting {url2} to {file}...')
-        os.system(f"curl -# -L '{url2}' -o '/root/.cache/torch/hub/checkpoints/{file}' --retry 3 -C -")  # curl download, retry and resume on fail
+        os.system(f"curl -# -L '{url2}' -o '{file}' --retry 3 -C -")  # curl download, retry and resume on fail
     finally:
         if not file.exists() or file.stat().st_size < min_bytes:  # check
             if file.exists():
@@ -72,6 +72,7 @@ def attempt_download(file, backup, repo='ultralytics/yolov5', release='v7.0'):
         if str(file).startswith(('http:/', 'https:/')):  # download
             url = str(file).replace(':/', '://')  # Pathlib turns :// -> :/
             file = name.split('?')[0]  # parse authentication https://url.com/file.txt?auth...
+            file = f"/root/.cache/torch/hub/checkpoints/{file}"
             if Path(file).is_file():
                 LOGGER.info(f'Found {url} locally at {file}')  # file already exists
             else:
