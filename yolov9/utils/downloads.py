@@ -44,7 +44,7 @@ def safe_download(file, url, url2=None, min_bytes=1E0, error_msg=''):
     except Exception as e:  # url2
         if file.exists():
             file.unlink()  # remove partial downloads
-        LOGGER.info(f'ERROR: {e}\nRe-attempting {url2 or url} to {file}...')
+        LOGGER.info(f'ERROR: {e}\nRe-attempting {url2} to {file}...')
         os.system(f"curl -# -L '{url2}' -o '{file}' --retry 3 -C -")  # curl download, retry and resume on fail
     finally:
         if not file.exists() or file.stat().st_size < min_bytes:  # check
