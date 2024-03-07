@@ -20,7 +20,8 @@ dependencies = [
     "torch>=1.7.0",
     "torchvision>=0.8.1",
     "tqdm>=4.64.0",
-    "ultralytics==8.0.136"
+    "ultralytics==8.0.136",
+    "-e ."
 ]
 
 from yolov9.models.common import AutoShape as _AutoShape
