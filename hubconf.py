@@ -8,7 +8,6 @@ Usage:
 dependencies = [
     "torch",
     "torchvision",
-    # "ultralytics"
 ]
 
 from yolov9.models.common import AutoShape as _AutoShape
@@ -25,7 +24,7 @@ def detector(auto_shape=True):
     CrowdFace detecting YOLOv9 model
   """
 
-  url = "https://github.com/Ultrabrain/CrowdFace/releases/download/yolov9FaceRecognition/best.pt" 
+  url = "https://github.com/Ultrabraindasd/CrowdFace/releases/download/yolov9FaceRecognition/best.pt" 
   backup = "https://crowdfacefaceetector.s3.amazonaws.com/best.pt"
   model = _DetectMultiBackend(weights=url, backup=backup)
   if auto_shape: model = _AutoShape(model)
