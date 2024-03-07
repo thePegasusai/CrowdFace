@@ -75,7 +75,6 @@ def attempt_download(file, backup, repo='ultralytics/yolov5', release='v7.0'):
             if Path(file).is_file():
                 LOGGER.info(f'Found {url} locally at {file}')  # file already exists
             else:
-                print("BACKUP", backup)
                 safe_download(file=file, url=url, url2=backup, min_bytes=1E5)
             return file
 
