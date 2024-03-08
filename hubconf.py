@@ -8,7 +8,6 @@ Usage:
 dependencies = [
     "torch",
     "torchvision",
-    "ultralytics",
 ]
 
 from yolov9.models.common import AutoShape as _AutoShape
