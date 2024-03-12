@@ -283,7 +283,7 @@ def main(opt):
         dnn=opt.dnn,
         vid_stride=opt.vid_stride,
         overlay_img_path=opt.overlay_img_path  # Pass overlay_img_path argument
-    )``
+    )
 
 if __name__ == "__main__":
     opt = parse_opt()
