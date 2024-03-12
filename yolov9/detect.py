@@ -3,8 +3,20 @@ import os
 import platform
 import sys
 from pathlib import Path
-
+import numpy as np
 import torch
+import ssl
+import torch.mps
+
+# SSL certificate issue handling
+ssl._create_default_https_context = ssl._create_unverified_context
+os.environ['PYTORCH_MPS_HIGH_WATERMARK_RATIO'] = '0.0'
+
+# MPS availability checks
+torch_device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+
+
+
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLO root directory
@@ -49,6 +61,7 @@ def run(
         half=False,  # use FP16 half-precision inference
         dnn=False,  # use OpenCV DNN for ONNX inference
         vid_stride=1,  # video frame-rate stride
+        overlay_img_path='/Users/blackboyzeus/Desktop/ads for crowdface/Toucan_Sam.png',  # path to overlay image
 ):
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
@@ -80,10 +93,17 @@ def run(
     else:
         dataset = LoadImages(source, img_size=imgsz, stride=stride, auto=pt, vid_stride=vid_stride)
     vid_path, vid_writer = [None] * bs, [None] * bs
+    
+ 
+    overlay_img_path = opt.overlay_img_path  # Get the overlay image path from options
+    overlay_img = cv2.imread(overlay_img_path, cv2.IMREAD_UNCHANGED)  # Load with alpha channel
 
     # Run inference
     model.warmup(imgsz=(1 if pt or model.triton else bs, 3, *imgsz))  # warmup
     seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
+    # Load overlay image
+    overlay_image_path = '/Users/blackboyzeus/Desktop/ads for crowdface/Toucan_Sam.png'
+    overlay_img = cv2.imread(overlay_image_path, cv2.IMREAD_UNCHANGED)  # Load with alpha channel
     for path, im, im0s, vid_cap, s in dataset:
         with dt[0]:
             im = torch.from_numpy(im).to(model.device)
@@ -141,6 +161,33 @@ def run(
                         c = int(cls)  # integer class
                         label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} {conf:.2f}')
                         annotator.box_label(xyxy, label, color=colors(c, True))
+                        if cls ==0: 
+                            # Extract bounding box coordinates
+                            x1, y1, x2, y2 = int(xyxy[0]), int(xyxy[1]), int(xyxy[2]), int(xyxy[3])
+
+                            #Resize overlay image to fit the bounding box
+                            overlay_resized = cv2.resize(overlay_img, (x2 - x1, y2-y1))
+
+                            #Seperate the color and alpha channels
+                            overlay_color = overlay_resized[:, :, :3]
+                            if overlay_resized.shape[2] == 4:  # Check if the image has an alpha channel
+                                 overlay_alpha = overlay_resized[:, :, 3] / 255.0
+                            else:
+                            # Handle the case where there is no alpha channel (e.g., convert to grayscale or use a default alpha value)
+                                overlay_alpha = 1.0  # Replace this with your preferred default alpha value or handling logic
+
+
+                            #Get the background image (a slice of im0 where the overlay image will be place)
+                            background_slice = im0[y1:y2, x1:x2]
+
+                            #Blend the overlay image with the background based on the alpha channel
+                            for c in range(0, 3):
+                                background_slice[:, :, c] = (overlay_alpha * overlay_color[:, :, c] +
+                                                             (1 - overlay_alpha) * background_slice[:, :, c])
+                                #Place the blended image back in to the original image
+                                im0[y1:y2, x1:x2] = background_slice
+
+
                     if save_crop:
                         save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
 
@@ -154,24 +201,7 @@ def run(
                 cv2.imshow(str(p), im0)
                 cv2.waitKey(1)  # 1 millisecond
 
-            # Save results (image with detections)
-            if save_img:
-                if dataset.mode == 'image':
-                    cv2.imwrite(save_path, im0)
-                else:  # 'video' or 'stream'
-                    if vid_path[i] != save_path:  # new video
-                        vid_path[i] = save_path
-                        if isinstance(vid_writer[i], cv2.VideoWriter):
-                            vid_writer[i].release()  # release previous video writer
-                        if vid_cap:  # video
-                            fps = vid_cap.get(cv2.CAP_PROP_FPS)
-                            w = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-                            h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-                        else:  # stream
-                            fps, w, h = 30, im0.shape[1], im0.shape[0]
-                        save_path = str(Path(save_path).with_suffix('.mp4'))  # force *.mp4 suffix on results videos
-                        vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
-                    vid_writer[i].write(im0)
+            
 
         # Print time (inference-only)
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
@@ -215,6 +245,7 @@ def parse_opt():
     parser.add_argument('--half', action='store_true', help='use FP16 half-precision inference')
     parser.add_argument('--dnn', action='store_true', help='use OpenCV DNN for ONNX inference')
     parser.add_argument('--vid-stride', type=int, default=1, help='video frame-rate stride')
+    parser.add_argument('--overlay-img-path', type=str, default='', help='path to overlay image')
     opt = parser.parse_args()
     opt.imgsz *= 2 if len(opt.imgsz) == 1 else 1  # expand
     print_args(vars(opt))
@@ -223,8 +254,36 @@ def parse_opt():
 
 def main(opt):
     check_requirements(exclude=('tensorboard', 'thop'))
-    run(**vars(opt))
-
+    run(
+        weights=opt.weights,
+        source=opt.source,
+        data=opt.data,
+        imgsz=opt.imgsz,
+        conf_thres=opt.conf_thres,
+        iou_thres=opt.iou_thres,
+        max_det=opt.max_det,
+        device=opt.device,
+        view_img=opt.view_img,
+        save_txt=opt.save_txt,
+        save_conf=opt.save_conf,
+        save_crop=opt.save_crop,
+        nosave=opt.nosave,
+        classes=opt.classes,
+        agnostic_nms=opt.agnostic_nms,
+        augment=opt.augment,
+        visualize=opt.visualize,
+        update=opt.update,
+        project=opt.project,
+        name=opt.name,
+        exist_ok=opt.exist_ok,
+        line_thickness=opt.line_thickness,
+        hide_labels=opt.hide_labels,
+        hide_conf=opt.hide_conf,
+        half=opt.half,
+        dnn=opt.dnn,
+        vid_stride=opt.vid_stride,
+        overlay_img_path=opt.overlay_img_path  # Pass overlay_img_path argument
+    )``
 
 if __name__ == "__main__":
     opt = parse_opt()
