@@ -30,9 +30,9 @@ def detector(auto_shape=True):
   if auto_shape: model = _AutoShape(model)
   return model
 
-def detect(source=0):
+def detect(source=0, *args, **kwargs):
   url = "https://github.com/Ultrabrain/CrowdFace/releases/download/yolov9FaceRecognition/best.pt" 
   backup = "https://ultrabrain.s3.amazonaws.com/best.pt"
   
-  _run(model=url, source=source)
+  _run(weights=url, source=source, *args, **kwargs)
 
