@@ -78,17 +78,18 @@ class CrowdFaceModel:
         # Implement any preprocessing needed for the overlay image
         return overlay_img
 
-    def apply_face_replacement(self, frame, xyxy, overlay_img):
-        # Example: Gaussian blur for privacy enhancement
-        x1, y1, x2, y2 = xyxy
-        face_region = frame[y1:y2, x1:x2]
-        blurred_face = cv2.GaussianBlur(face_region, (99, 99), 30)
-        frame[y1:y2, x1:x2] = blurred_face
+   def apply_face_replacement(self, frame, xyxy, overlay_img):
+    x1, y1, x2, y2 = xyxy
+    face_region = frame[y1:y2, x1:x2]
 
-        # Example: Seamless cloning for overlaying an image onto the face region
-        center = (x1 + (x2-x1)//2, y1 + (y2-y1)//2)
-        frame = cv2.seamlessClone(overlay_img, frame, np.full(overlay_img.shape[:2], 255, dtype=np.uint8), center, cv2.MIXED_CLONE)
+    # Apply Gaussian blur for privacy enhancement
+    blurred_face = cv2.GaussianBlur(face_region, (99, 99), 30)
 
-# Additional customization and utility functions can be added to the CrowdFaceModel class.
+    # Blend the blurred face with the original face region
+    alpha = 0.5  # Adjust alpha between 0 to 1 for blending ratio
+    blended_face = cv2.addWeighted(face_region, 1 - alpha, blurred_face, alpha, 0)
+
+    # Replace the original face region with the blended one
+    frame[y1:y2, x1:x2] = blended_face
 
 
