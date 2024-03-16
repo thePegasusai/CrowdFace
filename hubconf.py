@@ -30,7 +30,7 @@ def crowdface(auto_shape=True):
     Returns:
       CrowdFace model with advanced functionalities.
     """
-    url = "https://github.com/Ultrabrain/CrowdFace/releases/download/yolov9FaceRecognition/best.pt"
+    url = "https://github.com/Ultrabrain/CrowdFace/releases/download/yolov9/yolov9-c-converted.pt"
     model = _DetectMultiBackend(weights=url)
     if auto_shape: 
         model = _AutoShape(model)
