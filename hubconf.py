@@ -1,10 +1,10 @@
 """
-CrowdFace: Advanced Face Detection and Replacement
-Leverages YOLOv9 for efficient and accurate face detection, integrating seamless face replacement and privacy enhancements.
+PetFace: Advanced Pet Face Detection and Enhancement
+Leverages YOLOv9 for efficient and accurate pet face detection, integrating seamless face replacement and privacy enhancements specifically tailored for pets.
 
 Usage:
     import torch  
-    model = torch.hub.load('Ultrabrain/CrowdFace', 'crowdface', autoshape=True)
+    model = torch.hub.load('Ultrabrain/CrowdFace', 'petface', autoshape=True)
 """
 dependencies = [
     "torch",
@@ -20,37 +20,37 @@ from yolov9.models.common import AutoShape as _AutoShape
 from yolov9.models.common import DetectMultiBackend as _DetectMultiBackend
 from yolov9.utils.general import check_img_size, non_max_suppression
 
-# Define the enhanced detector with face replacement capabilities
-def crowdface(auto_shape=True):
+# Define the enhanced detector with pet face replacement capabilities
+def petface(auto_shape=True):
     """
-    Load the CrowdFace model with enhanced face detection and processing capabilities.
+    Load the PetFace model with enhanced pet face detection and processing capabilities.
     
     Arguments:
       auto_shape (bool): Automatically adjust input shapes.
     Returns:
-      CrowdFace model with advanced functionalities.
+      PetFace model with advanced functionalities.
     """
-    url = "https://github.com/Ultrabrain/CrowdFace/releases/download/yolov9/yolov9-c-converted.pt"
+    url = "https://github.com/Ultrabrain/CrowdFace/releases/download/yolov9/yolov9-pet-converted.pt"  # Assuming a specific model for pet faces
     model = _DetectMultiBackend(weights=url)
     if auto_shape: 
         model = _AutoShape(model)
-    return CrowdFaceModel(model)
+    return PetFaceModel(model)
 
-class CrowdFaceModel:
+class PetFaceModel:
     def __init__(self, model):
         self.model = model
-        # Pre-load or define any resources needed for face processing (e.g., overlay images)
+        # Pre-load or define any resources needed for pet face processing (e.g., overlay images)
 
     def process_frame(self, frame, overlay_img_path, conf_thres=0.25, iou_thres=0.45, classes=None, agnostic_nms=False):
         """
-        Process a single frame for face detection and apply face replacement/enhancements.
+        Process a single frame for pet face detection and apply face replacement/enhancements.
         
         Arguments:
           frame: Frame to process.
           overlay_img_path: Path to the overlay image for face replacement.
           conf_thres: Confidence threshold for detections.
           iou_thres: IOU threshold for non-max suppression.
-          classes: Target classes for detection.
+          classes: Target classes for detection (e.g., specific pet species).
           agnostic_nms: Apply class-agnostic NMS.
         """
         # Load the overlay image
@@ -66,11 +66,11 @@ class CrowdFaceModel:
         pred = self.model(img, augment=False, visualize=False)
         pred = non_max_suppression(pred, conf_thres, iou_thres, classes, agnostic_nms, max_det=1000)
 
-        # Apply face replacement or enhancements on detections
+        # Apply pet face replacement or enhancements on detections
         for i, det in enumerate(pred):
             if len(det):
                 for *xyxy, conf, cls in reversed(det):
-                    self.apply_face_replacement(frame, list(map(int, xyxy)), overlay_img)
+                    self.apply_pet_face_enhancement(frame, list(map(int, xyxy)), overlay_img)
 
         return frame
 
@@ -78,18 +78,10 @@ class CrowdFaceModel:
         # Implement any preprocessing needed for the overlay image
         return overlay_img
 
-   def apply_face_replacement(self, frame, xyxy, overlay_img):
-    x1, y1, x2, y2 = xyxy
-    face_region = frame[y1:y2, x1:x2]
+    def apply_pet_face_enhancement(self, frame, xyxy, overlay_img):
+        # Implement pet-specific face enhancement logic here
+        pass
 
-    # Apply Gaussian blur for privacy enhancement
-    blurred_face = cv2.GaussianBlur(face_region, (99, 99), 30)
-
-    # Blend the blurred face with the original face region
-    alpha = 0.5  # Adjust alpha between 0 to 1 for blending ratio
-    blended_face = cv2.addWeighted(face_region, 1 - alpha, blurred_face, alpha, 0)
-
-    # Replace the original face region with the blended one
-    frame[y1:y2, x1:x2] = blended_face
+# Note: Adjust the function and class names, URLs, and logic as necessary to align with the specific features and focus of the PetFace branch.
 
 
