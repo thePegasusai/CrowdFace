@@ -1,7 +1,6 @@
 dependencies = [
     "torch",
     "torchvision",
-    "opencv-python-headless",
 ]
 import torch
 from yolov9.models.common import AutoShape as _AutoShape
