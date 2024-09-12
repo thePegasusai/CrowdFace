@@ -1,7 +1,7 @@
 dependencies = [
     "torch",
     "torchvision",
-   # "opencv-python-headless",
+    "opencv-python-headless",
 ]
 
 import torch
