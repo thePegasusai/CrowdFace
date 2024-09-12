@@ -1,6 +1,6 @@
 dependencies = [
     "torch",
-    "torchvision",
+    "torchvision"
 ]
 import torch
 from yolov9.models.common import AutoShape as _AutoShape
