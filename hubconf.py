@@ -9,8 +9,9 @@ Usage:
 dependencies = [
     "torch",
     "torchvision",
-    "opencv-python-headless",  # OpenCV is required for image processing
-]
+]  # Remove opencv-python-headless
+
+
 
 import torch
 import cv2
