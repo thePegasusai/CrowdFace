@@ -11,8 +11,6 @@ dependencies = [
     "torchvision",
 ]  # Remove opencv-python-headless
 
-
-
 import torch
 import cv2
 import numpy as np
@@ -79,16 +77,17 @@ class CrowdFaceModel:
         # Implement any preprocessing needed for the overlay image
         return overlay_img
 
-   def apply_face_replacement(self, frame, xyxy, overlay_img):
-    x1, y1, x2, y2 = xyxy
-    face_region = frame[y1:y2, x1:x2]
+    def apply_face_replacement(self, frame, xyxy, overlay_img):
+        x1, y1, x2, y2 = xyxy
+        face_region = frame[y1:y2, x1:x2]
 
-    # Apply Gaussian blur for privacy enhancement
-    blurred_face = cv2.GaussianBlur(face_region, (99, 99), 30)
+        # Apply Gaussian blur for privacy enhancement
+        blurred_face = cv2.GaussianBlur(face_region, (99, 99), 30)
 
-    # Blend the blurred face with the original face region
-    alpha = 0.5  # Adjust alpha between 0 to 1 for blending ratio
-    blended_face = cv2.addWeighted(face_region, 1 - alpha, blurred_face, alpha, 0)
+        # Blend the blurred face with the original face region
+        alpha = 0.5  # Adjust alpha between 0 to 1 for blending ratio
+        blended_face = cv2.addWeighted(face_region, 1 - alpha, blurred_face, alpha, 0)
 
-    # Replace the original face region with the blended one
-    frame[y1:y2, x1:x2] = blended_face
+        # Replace the original face region with the blended one
+        frame[y1:y2, x1:x2] = blended_face
+        return frame
