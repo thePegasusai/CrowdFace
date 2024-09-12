@@ -25,4 +25,4 @@ def crowdface(auto_shape=True):
     model = _DetectMultiBackend(weights=url)
     if auto_shape:
         model = _AutoShape(model)
-    return model 
+    return model
