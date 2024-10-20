@@ -1,12 +1,12 @@
 """
-Ultrabrain CrowdFace Detector Model
 CrowdFace: Advanced Face Detection and Replacement
 Leverages YOLOv9 for efficient and accurate face detection, integrating seamless face replacement and privacy enhancements.
+
 Usage:
-    import torch  
-    model = torch.hub.load('Ultrabrain/CrowdFace', 'detector', autoshape=True)
-    model = torch.hub.load('Ultrabrain/CrowdFace', 'crowdface', autoshape=True)
+    import torch  
+    model = torch.hub.load('Ultrabrain/CrowdFace', 'crowdface', autoshape=True)
 """
+
 dependencies = [
     "torch",
     "torchvision",
@@ -17,19 +17,19 @@ import torch
 import cv2
 import numpy as np
 from pathlib import Path
-from yolov9.models.common import AutoShape as _AutoShape  # Import yolov9.models.common
-from yolov9.models.common import DetectMultiBackend as _DetectMultiBackend  # Import yolov9.models.common
-from yolov9.utils.general import check_img_size, non_max_suppression  # Import yolov9.utils.general
+from yolov9.models.common import AutoShape as _AutoShape
+from yolov9.models.common import DetectMultiBackend as _DetectMultiBackend
+from yolov9.utils.general import check_img_size, non_max_suppression
 
 # Define the enhanced detector with face replacement capabilities
 def crowdface(auto_shape=True):
     """
     Load the CrowdFace model with enhanced face detection and processing capabilities.
-
+    
     Arguments:
-        auto_shape (bool): Automatically adjust input shapes.
+      auto_shape (bool): Automatically adjust input shapes.
     Returns:
-        CrowdFaceModel instance with advanced functionalities.
+      CrowdFaceModel instance with advanced functionalities.
     """
     url = "https://github.com/Ultrabrain/CrowdFace/releases/download/yolov9FaceRecognition/best.pt"
     model = _DetectMultiBackend(weights=url)
@@ -45,14 +45,14 @@ class CrowdFaceModel:
     def process_frame(self, frame, overlay_img_path, conf_thres=0.25, iou_thres=0.45, classes=None, agnostic_nms=False):
         """
         Process a single frame for face detection and apply face replacement/enhancements.
-
+        
         Arguments:
-            frame: Frame to process.
-            overlay_img_path: Path to the overlay image for face replacement.
-            conf_thres: Confidence threshold for detections.
-            iou_thres: IOU threshold for non-max suppression.
-            classes: Target classes for detection.
-            agnostic_nms: Apply class-agnostic NMS.
+          frame: Frame to process.
+          overlay_img_path: Path to the overlay image for face replacement.
+          conf_thres: Confidence threshold for detections.
+          iou_thres: IOU threshold for non-max suppression.
+          classes: Target classes for detection.
+          agnostic_nms: Apply class-agnostic NMS.
         """
         # Load the overlay image
         overlay_img = cv2.imread(overlay_img_path, cv2.IMREAD_UNCHANGED)
@@ -84,25 +84,25 @@ class CrowdFaceModel:
     def apply_face_replacement(self, frame, xyxy, overlay_img):
         """
         Apply face replacement by blending an overlay image with a detected face region.
-
+        
         Arguments:
-            frame: The original frame.
-            xyxy: The coordinates of the detected face.
-            overlay_img: The overlay image for face replacement.
+          frame: The original frame.
+          xyxy: The coordinates of the detected face.
+          overlay_img: The overlay image for face replacement.
         """
         x1, y1, x2, y2 = xyxy
         face_region = frame[y1:y2, x1:x2]
 
         # Apply Gaussian blur for privacy enhancement
         blurred_face = cv2.GaussianBlur(face_region, (99, 99), 30)
-
+        
         # Blend the blurred face with the original face region
         alpha = 0.5  # Adjust alpha between 0 to 1 for blending ratio
         blended_face = cv2.addWeighted(face_region, 1 - alpha, blurred_face, alpha, 0)
-
+        
         # Replace the original face region with the blended one
         frame[y1:y2, x1:x2] = blended_face
-
+        
         # Seamlessly clone the overlay image onto the face region
         center = (x1 + (x2 - x1) // 2, y1 + (y2 - y1) // 2)
         frame = cv2.seamlessClone(overlay_img, frame, np.full(overlay_img.shape[:2], 255, dtype=np.uint8), center, cv2.MIXED_CLONE)
