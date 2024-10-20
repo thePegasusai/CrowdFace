@@ -3,7 +3,7 @@ CrowdFace: Advanced Face Detection and Replacement
 Leverages YOLOv9 for efficient and accurate face detection, integrating seamless face replacement and privacy enhancements.
 
 Usage:
-    import torch  
+    import torch
     model = torch.hub.load('Ultrabrain/CrowdFace', 'crowdface', autoshape=True)
 """
 
