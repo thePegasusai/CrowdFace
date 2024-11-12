@@ -97,5 +97,4 @@ class CrowdFaceModel:
 
         return frame  # Return the modified frame
 
-# Load the model with force_reload to ensure the latest version
-model = torch.hub.load('Ultrabrain/CrowdFace:main', 'crowdface', autoshape=True, force_reload=True)
+# Remove the model loading at the bottom - this was causing repeated downloads
